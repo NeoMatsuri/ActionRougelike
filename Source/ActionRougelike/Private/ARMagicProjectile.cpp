@@ -32,6 +32,9 @@ void AARMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+	
+	
 }
 
 // Called every frame
