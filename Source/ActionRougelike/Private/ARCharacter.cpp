@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ARInteractionComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ARAttributeComponent.h"
 
 
 
@@ -27,6 +28,9 @@ AARCharacter::AARCharacter()
 	CameraComp ->SetupAttachment(SpringArmComp);
 
 	InteractionComp = CreateDefaultSubobject<UARInteractionComponent>("InteractionComp");
+
+	AttributeComp = CreateDefaultSubobject<UARAttributeComponent>("AttributeComp");
+	this->AddInstanceComponent(AttributeComp);
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -102,13 +106,60 @@ void AARCharacter::PrimaryAttack()
 
 void AARCharacter::PrimaryAttack_TimeElapsed()
 {
+	
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+
+
 	FHitResult Hit;
+	FVector TraceStart = CameraComp->GetComponentLocation();
+	// endpoint far into the look-at distance (not too far, still adjust somewhat towards crosshair on a miss)
+	FVector TraceEnd = CameraComp->GetComponentLocation() + (GetControlRotation().Vector() * 5000);
+
+	FCollisionShape Shape;
+	Shape.SetSphere(20.0f);
+
+	// Ignore Player
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	FCollisionObjectQueryParams ObjParams;
+	ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	ObjParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	FRotator ProjRotation;
+	// true if we got to a blocking hit (Alternative: SweepSingleByChannel with ECC_WorldDynamic)
+	if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, Params))
+	{
+		// Adjust location to end up at crosshair look-at
+		ProjRotation = FRotationMatrix::MakeFromX(Hit.ImpactPoint - HandLocation).Rotator();
+	}
+	else
+	{
+		// Fall-back since we failed to find any blocking hit
+		ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+	}
+
+
+	FTransform SpawnTM = FTransform(ProjRotation, HandLocation);
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+
+
+	/*FHitResult Hit;
+	
+
 	
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
 
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
 	
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
 	
@@ -141,9 +192,9 @@ void AARCharacter::PrimaryAttack_TimeElapsed()
 	}
 	
 
-	DrawDebugLine(GetWorld(), HandLocation, End, LineColor, false, 2.0f, 0, 2.0f);
-	FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
-	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
+	//DrawDebugLine(GetWorld(), HandLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+	//FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
+	//DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);*/
 }
 
 void AARCharacter::BlackHole()
@@ -195,9 +246,9 @@ void AARCharacter::BlackHole_TimeElapsed()
 	}
 
 
-	DrawDebugLine(GetWorld(), HandLocation, End, LineColor, false, 2.0f, 0, 2.0f);
-	FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
-	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
+	//DrawDebugLine(GetWorld(), HandLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+	//FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
+	//DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
 }
 
 void AARCharacter::Teleport()
@@ -250,9 +301,9 @@ void AARCharacter::Teleport_TimeElapsed()
 	}
 
 
-	DrawDebugLine(GetWorld(), HandLocation, End, LineColor, false, 2.0f, 0, 2.0f);
-	FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
-	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
+	//DrawDebugLine(GetWorld(), HandLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+	//FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
+	//DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
 
 }
 

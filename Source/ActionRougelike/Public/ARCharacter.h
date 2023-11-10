@@ -7,10 +7,12 @@
 #include "ARCharacter.generated.h"
 
 
+
 class UCameraComponent;
 class USpringArmComponent;
 class UARInteractionComponent;
 class UAnimMontage;
+class UARAttributeComponent;
 
 UCLASS()
 class ACTIONROUGELIKE_API AARCharacter : public ACharacter
@@ -51,6 +53,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UARInteractionComponent* InteractionComp;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Components")
+	UARAttributeComponent* AttributeComp;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
