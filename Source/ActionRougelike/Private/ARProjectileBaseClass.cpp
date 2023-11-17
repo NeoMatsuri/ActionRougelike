@@ -5,6 +5,8 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "DrawDebugHelpers.h"
+#include "Camera/CameraShakeBase.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -19,6 +21,7 @@ AARProjectileBaseClass::AARProjectileBaseClass()
 	RootComponent = SphereComp;
 	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
 
+
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
 	EffectComp->SetupAttachment(RootComponent);
 
@@ -27,6 +30,8 @@ AARProjectileBaseClass::AARProjectileBaseClass()
 	MoveComp->bInitialVelocityInLocalSpace = true;
 	MoveComp->ProjectileGravityScale = 0.0f;
 	MoveComp->InitialSpeed = 8000;
+
+	ImpactSFX = CreateDefaultSubobject<USoundBase>("ImpactSFX");
 }
 
 // Called when the game starts or when spawned
@@ -54,9 +59,12 @@ void AARProjectileBaseClass::Explode_Implementation()
 {
 	if (IsValid(SphereComp))
 	{
+		
 		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
-
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSFX, GetActorLocation());
 		EffectComp->DeactivateSystem();
+
+		UGameplayStatics::PlayWorldCameraShake(this, ImpactShake, GetActorLocation(), ImpactShakeInnerRadius, ImpactShakeOuterRadius);
 
 		MoveComp->StopMovementImmediately();
 		SetActorEnableCollision(false);

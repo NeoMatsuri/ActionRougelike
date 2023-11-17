@@ -45,8 +45,6 @@ void AARBlinkProjectile::Explode_Implementation()
 	FTimerHandle TimerHandle_DelayedTeleport;
 	GetWorldTimerManager().SetTimer(TimerHandle_DelayedTeleport, this, &AARBlinkProjectile::TeleportInstigator, TeleportDelay);
 
-
-
 }
 
 void AARBlinkProjectile::TeleportInstigator()

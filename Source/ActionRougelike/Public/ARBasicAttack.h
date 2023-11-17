@@ -7,6 +7,8 @@
 #include "ARBasicAttack.generated.h"
 
 
+class UAudioComponent;
+
 /**
  * 
  */
@@ -28,6 +30,11 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	UAudioComponent* FlightSoundComp;
+
+	
 
 
 	

@@ -13,6 +13,8 @@ class USpringArmComponent;
 class UARInteractionComponent;
 class UAnimMontage;
 class UARAttributeComponent;
+class UParticleSystem;
+
 
 UCLASS()
 class ACTIONROUGELIKE_API AARCharacter : public ACharacter
@@ -33,10 +35,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
 
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UParticleSystem* MuzzleFlash;
+
 	FTimerHandle TimerHandle_PrimaryAttack;
-
-
-
 	
 
 public:
@@ -69,6 +71,11 @@ protected:
 	void BlackHole_TimeElapsed();
 	void Teleport();
 	void Teleport_TimeElapsed();
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, UARAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+	virtual void PostInitializeComponents() override;
 
 public:	
 	// Called every frame

@@ -10,6 +10,7 @@ class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
 
+
 UCLASS(ABSTRACT)
 class ACTIONROUGELIKE_API AARProjectileBaseClass : public AActor
 {
@@ -29,8 +30,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UParticleSystemComponent* EffectComp;
 
+	UPROPERTY(EditAnywhere, Category = "VFX|Shake")
+	TSubclassOf<UCameraShakeBase> ImpactShake;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "VFX|Shake")
+	float ImpactShakeInnerRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "VFX|Shake")
+	float ImpactShakeOuterRadius;
+
 	UPROPERTY(EditDefaultsOnly, Category = "VFX")
 	UParticleSystem* ImpactVFX;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	USoundBase* ImpactSFX;
 
 	UFUNCTION()
 	virtual void OnActorHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

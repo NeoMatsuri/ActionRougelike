@@ -7,6 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ARInteractionComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 #include "ARAttributeComponent.h"
 
 
@@ -23,6 +25,7 @@ AARCharacter::AARCharacter()
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp ->SetupAttachment(RootComponent);
 
+	MuzzleFlash = CreateDefaultSubobject<UParticleSystem>("MuzzleFlash");
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp ->SetupAttachment(SpringArmComp);
@@ -38,6 +41,16 @@ AARCharacter::AARCharacter()
 
 	
 }
+
+void AARCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	AttributeComp->OnHealthChanged.AddDynamic(this, &AARCharacter::OnHealthChanged);
+}
+
+
+
 
 // Called when the game starts or when spawned
 void AARCharacter::BeginPlay()
@@ -147,6 +160,8 @@ void AARCharacter::PrimaryAttack_TimeElapsed()
 
 	FTransform SpawnTM = FTransform(ProjRotation, HandLocation);
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), TEXT("Muzzle_01"));
+	
 
 
 	/*FHitResult Hit;
@@ -311,5 +326,23 @@ void AARCharacter::PrimaryInteract()
 {
 	InteractionComp->PrimaryInteract();
 }
+
+void AARCharacter::OnHealthChanged(AActor* InstigatorActor, UARAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+
+	if (Delta < 0.0f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+	}
+
+	if (NewHealth <= -0.0f && Delta < 0.0f)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
+	}
+
+}
+
+
 
 
