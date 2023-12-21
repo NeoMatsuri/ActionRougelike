@@ -39,7 +39,7 @@ AARCharacter::AARCharacter()
 
 	bUseControllerRotationYaw = false;
 
-	
+	TimeToHitParamName = "TimeToHit";
 }
 
 void AARCharacter::PostInitializeComponents()
@@ -108,6 +108,13 @@ void AARCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 }
 
+void AARCharacter::HealSelf(float Amount /* = 100 */)
+{
+
+	AttributeComp->ApplyHealthChange(this, Amount);
+
+}
+
 void AARCharacter::PrimaryAttack()
 {
 	PlayAnimMontage(AttackAnim);
@@ -162,54 +169,6 @@ void AARCharacter::PrimaryAttack_TimeElapsed()
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), TEXT("Muzzle_01"));
 	
-
-
-	/*FHitResult Hit;
-	
-
-	
-	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
-
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	
-	FVector Location;
-	FRotator Rotation;
-	GetController()->GetPlayerViewPoint(Location, Rotation);
-	FVector End = Location + Rotation.Vector() * 2000.f;
-	
-	bool bBlockingHit = GetWorld()->LineTraceSingleByObjectType(Hit, HandLocation, End, ObjectQueryParams);
-	
-	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;	
-
-
-	FRotator HitRotation = UKismetMathLibrary::FindLookAtRotation(HandLocation, Hit.Location);
-	FRotator TraceEnd = UKismetMathLibrary::FindLookAtRotation(HandLocation, End);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-
-	if (bBlockingHit)
-	{
-		FTransform SpawnTM = FTransform(HitRotation, HandLocation);
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
-	}
-
-	else
-	{
-		FTransform SpawnTM = FTransform(TraceEnd, HandLocation);
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
-	}
-	
-
-	//DrawDebugLine(GetWorld(), HandLocation, End, LineColor, false, 2.0f, 0, 2.0f);
-	//FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
-	//DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);*/
 }
 
 void AARCharacter::BlackHole()
@@ -332,7 +291,7 @@ void AARCharacter::OnHealthChanged(AActor* InstigatorActor, UARAttributeComponen
 
 	if (Delta < 0.0f)
 	{
-		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 	}
 
 	if (NewHealth <= -0.0f && Delta < 0.0f)

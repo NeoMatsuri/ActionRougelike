@@ -27,7 +27,7 @@ void AARBasicAttack::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		UARAttributeComponent* AttributeComp = Cast<UARAttributeComponent>(OtherActor->GetComponentByClass(UARAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(-5.0f);
+			AttributeComp->ApplyHealthChange(GetInstigator(), - DamageAmount);
 
 			Explode_Implementation();
 		}

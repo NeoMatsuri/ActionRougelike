@@ -27,7 +27,7 @@ void AARHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	
 	if (AttributeComp && IsActive && AttributeComp->IsMaxHealth() != true)
 	{
-		AttributeComp->ApplyHealthChange(HealingAmount);
+		AttributeComp->ApplyHealthChange(this, HealingAmount);
 		SetInnactive();
 		GetWorldTimerManager().SetTimer(TimerHandle_CoolDown, this, &AARHealthPotion::SetActive, CoolDown);
 	}

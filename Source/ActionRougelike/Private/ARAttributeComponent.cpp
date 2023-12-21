@@ -4,6 +4,8 @@
 #include "ARAttributeComponent.h"
 #include "Math/UnrealMathUtility.h"
 
+
+
 // Sets default values for this component's properties
 UARAttributeComponent::UARAttributeComponent()
 {
@@ -11,21 +13,14 @@ UARAttributeComponent::UARAttributeComponent()
 	Health = MaxHealth;
 }
 
-
-bool UARAttributeComponent::ApplyHealthChange(float Delta)
-{
-
-	Health += Delta; 
-	Health = FMath::Clamp(Health, 0, MaxHealth);
-
-	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
-
-	return true;
-}
-
 bool UARAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
+}
+
+float UARAttributeComponent::GetMaxHealth() const
+{
+	return MaxHealth;
 }
 
 bool UARAttributeComponent::IsMaxHealth() const
@@ -34,3 +29,47 @@ bool UARAttributeComponent::IsMaxHealth() const
 }
 
 
+bool UARAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChange(InstigatorActor, -GetMaxHealth());
+}
+
+bool UARAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
+{
+	if (!GetOwner()->CanBeDamaged())
+	{
+		return false;
+	}
+
+
+	float OldHealth = Health; 
+
+	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
+
+	float ActualDelta = Health - OldHealth;
+	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+
+	return ActualDelta != 0;
+}
+
+UARAttributeComponent* UARAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return FromActor->FindComponentByClass<UARAttributeComponent>();
+	}
+
+	return nullptr;
+}
+
+bool UARAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	UARAttributeComponent* AttributeComp = GetAttributes(Actor);
+	
+	if (AttributeComp)
+	{
+		return AttributeComp->IsAlive();
+	}
+
+	return false;
+}

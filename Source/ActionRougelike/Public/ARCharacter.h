@@ -47,6 +47,9 @@ public:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
+
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
@@ -84,4 +87,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(Exec)
+	void HealSelf(float Amount = 100);
 };

@@ -34,6 +34,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "SFX")
 	UAudioComponent* FlightSoundComp;
 
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	float DamageAmount;
+
 	
 
 

@@ -16,7 +16,15 @@ class ACTIONROUGELIKE_API UARAttributeComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
+	
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	static UARAttributeComponent* GetAttributes(AActor* FromActor);
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes", meta = (DisplayName ="IsAlive"))
+	static bool IsActorAlive(AActor* Actor);
+
+	
+
 	UARAttributeComponent();
 
 protected:
@@ -29,15 +37,21 @@ protected:
 
 public:	
 
+	UFUNCTION(BlueprintCallable)
+	bool Kill(AActor * InstigatorActor);
+
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
 
 
-	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool ApplyHealthChange(float Delta);
+	UFUNCTION(BlueprintCallable)
+	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetMaxHealth() const;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsMaxHealth() const;
