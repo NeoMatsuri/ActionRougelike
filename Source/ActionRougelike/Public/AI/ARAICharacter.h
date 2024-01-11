@@ -45,4 +45,9 @@ protected:
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UARAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+public:
+
+	UFUNCTION()
+	void HealSelf(float Amount = 100);
 };

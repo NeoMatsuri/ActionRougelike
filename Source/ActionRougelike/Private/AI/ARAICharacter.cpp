@@ -92,4 +92,9 @@ void AARAICharacter::OnHealthChanged(AActor* InstigatorActor, UARAttributeCompon
 	}
 }
 
+void AARAICharacter::HealSelf(float Amount /*Amount = 100*/)
+{
+	AttributeComp->ApplyHealthChange(this, Amount);
+}
+
 

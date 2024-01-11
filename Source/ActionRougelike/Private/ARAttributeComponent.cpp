@@ -3,6 +3,7 @@
 
 #include "ARAttributeComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include <ARGameModeBase.h>
 
 
 
@@ -16,6 +17,11 @@ UARAttributeComponent::UARAttributeComponent()
 bool UARAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
+}
+
+bool UARAttributeComponent::IsLowHealth() const
+{
+	return Health <= MaxHealth / 2;
 }
 
 float UARAttributeComponent::GetMaxHealth() const
@@ -48,6 +54,17 @@ bool UARAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 
 	float ActualDelta = Health - OldHealth;
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+
+	//Died
+	if (ActualDelta < 0.0f && Health == 0.0f)
+	{
+		AARGameModeBase* GM = GetWorld()->GetAuthGameMode<AARGameModeBase>();
+		if (GM)
+		{
+			GM->OnActorKilled(GetOwner(), InstigatorActor);
+		}
+	}
+
 
 	return ActualDelta != 0;
 }

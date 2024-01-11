@@ -10,6 +10,9 @@
 #include "ARAttributeComponent.h"
 #include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
+#include <ARCharacter.h>
+
+
 
 
 
@@ -92,4 +95,34 @@ void AARGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryI
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
 		DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
 	}
+}
+
+void AARGameModeBase::RespawnPlayerElapsed(AController* Controller)
+{
+	if (ensure(Controller))
+	{
+		Controller->UnPossess();
+
+		RestartPlayer(Controller);
+	}
+
+}
+
+
+void AARGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
+{
+	AARCharacter* Player = Cast<AARCharacter>(VictimActor);
+	if (Player)
+	{
+
+		FTimerHandle TimerHandle_RespawnDelay;
+
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
+
+		float RespawnDelay = 2.0f;
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim %S, Killer %S"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
 }

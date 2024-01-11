@@ -3,9 +3,9 @@
 
 #include "AI/ARBTTaskNode_RangedAttack.h"
 #include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
 #include "ARAttributeComponent.h"
-#include "BehaviorTree/BlackboardComponent.h"
 
 
 UARBTTaskNode_RangedAttack::UARBTTaskNode_RangedAttack()
